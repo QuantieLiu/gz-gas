@@ -4,9 +4,9 @@
 ##### sql查询结果：单位id  班组数（项目数>5） 总班组数
     
 <li>service层
-<ul>数据字典code：PROJECT_TEAM_NOTOVER_NUM
-<ul>数据字典value：5
-<ul>数据字典明细项：参与统计的项目的systemStatus
+<li>数据字典code：PROJECT_TEAM_NOTOVER_NUM
+<li>数据字典value：5
+<li>数据字典明细项：参与统计的项目的systemStatus
 
 ``` 
     //获取 参与统计的项目的systemStatus后，组成 String[] 格式
