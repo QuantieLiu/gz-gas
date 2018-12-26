@@ -2,6 +2,8 @@
 ##### 思路：join和having count 获取 特定状态的单位下的所有班组的项目数均大于5的班组id，再和单位的所有班组数比较
 
 ##### sql查询结果：单位id  班组数（项目数>5） 总班组数
+
+###### 如果是查询 单位id 班组id 项目数，则在sql返回的list中是二维处理的数据，相对复杂
     
 <li>service层
 <li>数据字典code：PROJECT_TEAM_NOTOVER_NUM
