@@ -21,7 +21,7 @@
 		StringBuffer sb=new StringBuffer(" SELECT uu FROM Role rr , UserRole ur, User uu where ur.roleId =rr.id and ur.userId =uu.id ");
 		sb.append(" and uu.flgActive = 1  and rr.code = ? ");
 		if(StringUtils.isNotBlank(org_id)){
-			sb.append(" and u.orgId = ? ");    
+			sb.append(" and uu.orgId = ? ");    
 			return this.getSession().createQuery(sb.toString()).setParameter(0, code).setParameter(1, org_id).list();
 		}
 		return this.getSession().createQuery(sb.toString()).setParameter(0, code).list();
