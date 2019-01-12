@@ -108,6 +108,7 @@ saveBeforeSubmit(function(){
 
 <li>父form未保存，基于一个window的tab
 在只要打开子form页面，不管父form有没有编辑，一律保存父form
+个人偏向于：js判断是否需要保存，减少项后台请求的次数
 
 ```
 	/* 理论上id为空专用-当父form有附件或input框有值时，先保存父form工单，再打开子form页面 */
