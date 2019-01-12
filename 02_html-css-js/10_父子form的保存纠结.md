@@ -107,7 +107,7 @@ saveBeforeSubmit(function(){
 ```
 
 <li>父form未保存，基于一个window的tab
-	
+在只要打开子form页面，不管父form有没有编辑，一律保存父form
 
 ```
 	/* 理论上id为空专用-当父form有附件或input框有值时，先保存父form工单，再打开子form页面 */
@@ -188,25 +188,58 @@ saveBeforeSubmit(function(){
 			BT.showWarning("请选中一行！"); 
 		}
 	}
+	/* 审核工单-保存按钮 */
+	function FF_Save(){
+		checkForm(function(flag){
+			if(flag){
+				saveForm()
+			}else{
+				//啥也没填，不让你保存
+				BT.showWarning("请先填写表单！"); 
+			}
+		});
+	}
+	/* 审核工单-保存form */
+	function saveForm(){
+		$("#mainform").attr("action","${baseURL}/construct/certificateverify/certificateverifysave/saveIncludeFile.do?mdId=${param.mdId}&mdCode=${param.mdCode}&strategy=${strategy}");
+		BT.submitForm($("#mainform"), function (data) {
+			if (data && data.hasOk) { 
+				verifyId = data.bean.id;
+				$('#mainform input[name=id]').val(verifyId);
+				BT.showSuccess('操作成功!',function(){
+					parent.f_addTab("CERTIFICATE_VERIFY", '资质审核工单', "${baseURL}/construct/certificateverify/certificateverifyedit/flowEdit.do?mdCode=CERTIFICATE_VERIFY&menuId=${param.menuId}&id="
+							+verifyId+"&random="+Math.random());
+				});
+            } else { 
+            	BT.showError("操作失败!失败信息如下:\n" + data.message + "\n如您对以上信息有疑问，请联系管理人员!");
+            }
+		});
+	}
+	function FF_Cancel(){
+        win.LG.closeCurrentTab("CERTIFICATE_VERIFY");
+	}
+	/* 发起流程 */
+	$(".l-routeSubmit").click(function(){
+		if(canApply == '1'){
+			jQuery.ajax({
+				type: "POST",
+				url:"${baseURL}/jdbc/common/basecommonsave/saveFlow.do?id="+pkId+"&mdId=${param.mdId}&mdCode=${param.mdCode}&strategy=${strategy}",
+				dataType:'json',
+				success:function(data){
+					if(data && data.hasOk == true){
+						BT.showSuccess("操作成功!",function(){
+							win.LG.closeAndReloadParent("CERTIFICATE_VERIFY", "${param.menuId}");		
+						});
+					}else{
+						BT.showError("操作出错!"+data.message);
+					}
+				}
+			})
+		}else if(canApply =='' || canApply == 0){
+			BT.showError("请先添加需要审核的施工单位资质!");	
+		}else{
+			BT.showError("出了点小问题，请刷新当前页面!");
+		}
+	})
 ```
-
-
-<li>
-
-```
-
-```
-
-
-<li>
-
-
-
-
-<li>
-
-```
-
-```
-
 
