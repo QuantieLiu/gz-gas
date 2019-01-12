@@ -107,9 +107,87 @@ saveBeforeSubmit(function(){
 ```
 
 <li>父form未保存，基于一个window的tab
+	
 
 ```
-
+	/* 理论上id为空专用-当父form有附件或input框有值时，先保存父form工单，再打开子form页面 */
+	function checkForm(callback){
+		var flag=false;//默认不保存工单
+		if(pkId == ""){
+			var attId =$('#file-input-0').val();
+			var unitName=$('input[name=updateConstructName]').val() + $('input[name= updateAbbr]').val();
+			if( (attId != "" && typeof(attId) != "undefined") || (unitName != "" &&  typeof (unitName) != "undefined")){
+				flag=true;
+			}
+		}else{
+			flag=true;
+		}
+	    callback(flag);
+	}
+	/* 新增-资质 */
+	function goDetailPage(mdId,mdCode,verify){
+		if(pkId){
+			parent.f_addTab("CERTIFICATE_VERIFY_DETAIL", '资质信息', "${baseURL}/construct/certificateverifydetail/certificateverifydetailedit/superEdit.do?mdId="+mdId+"&mdCode="+mdCode
+					+"&verifyId="+pkId+"&verify="+verify+"&menuId=${param.menuId}&random="+Math.random());
+			saveForm();
+		}else{
+			checkForm(function(flag){
+				if(flag){
+					BT.showConfirm("提示","当前表单尚未保存，\n你确定保存施工单位资质审核工单信息吗？\n若是请点击确定按钮！",function(){
+						saveForm();
+					})
+				}else{
+					parent.f_addTab("CERTIFICATE_VERIFY_DETAIL", '资质信息', "${baseURL}/construct/certificateverifydetail/certificateverifydetailedit/superEdit.do?mdId="+mdId+"&mdCode="+mdCode
+							+"&verifyId="+pkId+"&verify="+verify+"&menuId=${param.menuId}&random="+Math.random());	
+				}
+			});
+		}
+	}	
+	/* 更新-资质 */
+	function modifyDetailPage(mdId,mdCode,verify){
+		if(pkId){
+			parent.f_addTab("CERTIFICATE_VERIFY_UPDATE", '资质信息', "${baseURL}/construct/certificateverifydetail/certificateverifydetailedit/superEdit.do?mdCode=CERTIFICATE_VERIFY_UPDATE&verifyId="+pkId
+					+"&verify="+verify+"&menuId=${param.menuId}&random="+Math.random());
+			saveForm();
+		}else{
+			checkForm(function(flag){
+				if(flag){
+					BT.showConfirm("提示","当前表单尚未保存，\n你确定保存施工单位资质审核工单信息吗？\n若是请点击确定按钮！",function(){
+						saveForm();
+					})
+				}else if(canAddUpd == 2){
+					parent.f_addTab("CERTIFICATE_VERIFY_UPDATE", '资质信息', "${baseURL}/construct/certificateverifydetail/certificateverifydetailedit/superEdit.do?mdId=&mdCode=CERTIFICATE_VERIFY_UPDATE"
+							+"&verifyId="+pkId+"&verify="+verify+"&menuId=${param.menuId}&random="+Math.random());
+				}else{
+					BT.showWarning("该施工单位未有资质可申请更新审核，请新增资质信息！");
+				}
+			});
+		}
+	}	
+	/* 修改 */
+	function changeDetailPage(mdId,mdCode){
+		var selection = $("#listTable"+mdId).bootstrapTable('getSelections');
+		if(selection.length==1){
+			var row = selection[0];
+			if(row.verifyType == 1){
+				parent.f_addTab("CERTIFICATE_VERIFY_DETAIL", '资质信息', "${baseURL}/construct/certificateverifydetail/certificateverifydetailedit/superEdit.do?mdId="
+						+"&mdCode=CERTIFICATE_VERIFY_DETAIL&id="+row.id+"&random="+Math.random());
+				if(pkId){
+					saveForm();
+				}
+			}else if(row.verifyType == 2){
+				parent.f_addTab("CERTIFICATE_VERIFY_UPDATE", '资质信息', "${baseURL}/construct/certificateverifydetail/certificateverifydetailedit/superEdit.do?mdId="
+						+"&mdCode=CERTIFICATE_VERIFY_UPDATE&id="+row.id+"&random="+Math.random()); 
+				if(pkId){
+					saveForm();
+				}
+			}else{
+				BT.showWarning("数据出了点小问题，请刷新页面！"); 
+			}
+		}else{
+			BT.showWarning("请选中一行！"); 
+		}
+	}
 ```
 
 
