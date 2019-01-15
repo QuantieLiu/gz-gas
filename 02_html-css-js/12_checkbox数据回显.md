@@ -28,7 +28,18 @@
 			}
 ```
 
-<li>修改页面的数据回显
+<li>首选
+	
+```
+					boxObj.each(function () {  
+					  debugger
+						if( -1 < roleCho.indexOf($(this).val()) ) {  
+						   $(this).attr("checked",true);  
+						}  
+					});  
+```
+
+<li>修改页面的数据回显-js
 
 ```
 					var roleCho=selections[0].roleCode;
