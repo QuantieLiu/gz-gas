@@ -39,3 +39,18 @@
 					}
           //保存form时会自动传到后台
 ```
+
+<li>jquery两层循环
+	
+```
+					var boxObj = $("input:checkbox[name='roleChoose']");  //获取所有的复选框
+					 var express = roleCho.split(',');  
+					$.each(express, function(index, expressId){  
+					       boxObj.each(function () {  
+					    	   debugger
+					            if($(this).val() == expressId) {  
+					               $(this).attr("checked",true);  
+					            }  
+					        });  
+					    });  
+```
