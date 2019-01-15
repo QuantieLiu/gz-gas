@@ -30,3 +30,13 @@
 		return getSession().createQuery(sb.toString()).setParameter(0, unitId).setParameter(1, verifyId).list();
 	}
 ```
+
+<li>从数据库中获取最大的员工编号
+	
+```
+	@Override
+	public Object getStaffMaxCode(){
+		StringBuilder sb =new StringBuilder("select max(ABS(code)) from C_CONSTRUCT_STAFF Where DATA_SOURCE = 0 ");
+		return getSession().createSQLQuery(sb.toString()).uniqueResult();
+	}
+```
