@@ -99,22 +99,18 @@
 
 ```
 	@Override
-	public String updateStatusByQuery(ConstructUpdateStatusVo vo){
-		if(StringUtils.isBlank(vo.getTableName()) || StringUtils.isBlank(vo.getFieldName()) || StringUtils.isBlank(vo.getStatus()) )
-			return null;
-		StringBuilder sb =new StringBuilder("UPDATE "+ vo.getTableName() +" SET "+ vo.getFieldName() +" =(:upStatus) ");
-		sb.append(" WHERE "+ vo.getFieldDate() +" IS NOT NULL ");
-		if( !vo.isUpdateAll() ){
-			if(StringUtils.isNotBlank(vo.getStartDay())  ||  StringUtils.isNotBlank(vo.getEndDay()) ){
-				sb.append(" AND "+ vo.getFieldDate()+" between  sysdate"+ vo.getStartDay()+ " AND sysdate"+ vo.getEndDay());
+	public void updateIdCardStatusByDays(String status,String days,boolean isUpdateAll){
+		StringBuilder sb =new StringBuilder("UPDATE C_CONSTRUCT_STAFF sd SET sd.ID_CARD_STATUS =(:upStatus) ");
+		//AND sd.ID_CARD_STATUS !=(:upStatus)  会把null的过滤掉
+		sb.append(" WHERE sd.FLG_DELETED = 0 AND sd.id_expiry_date IS NOT NULL ");
+		if(!isUpdateAll){
+			if(StringUtils.isNotBlank(days)){
+				sb.append(" AND sd.id_expiry_date < SYSDATE" + days);
 			}else{
-				sb.append(" AND "+vo.getFieldDate() + " < SYSDATE ");
+				sb.append(" AND sd.id_expiry_date < SYSDATE ");
 			}
 		}
-		if(StringUtils.isNotBlank(vo.getDefaultParams()))
-			sb.append(" AND " +vo.getDefaultParams());
-		getSession().createSQLQuery(sb.toString()).setParameter("upStatus", vo.getStatus()).executeUpdate();
-		return "success";
+		getSession().createSQLQuery(sb.toString()).setParameter("upStatus", status).executeUpdate();
 	}
 ```
 
