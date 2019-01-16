@@ -97,3 +97,70 @@
 	}
 ```
 
+```
+	@Override
+	public String updateStatusByQuery(ConstructUpdateStatusVo vo){
+		if(StringUtils.isBlank(vo.getTableName()) || StringUtils.isBlank(vo.getFieldName()) || StringUtils.isBlank(vo.getStatus()) )
+			return null;
+		StringBuilder sb =new StringBuilder("UPDATE "+ vo.getTableName() +" SET "+ vo.getFieldName() +" =(:upStatus) ");
+		sb.append(" WHERE "+ vo.getFieldDate() +" IS NOT NULL ");
+		if( !vo.isUpdateAll() ){
+			if(StringUtils.isNotBlank(vo.getStartDay())  ||  StringUtils.isNotBlank(vo.getEndDay()) ){
+				sb.append(" AND "+ vo.getFieldDate()+" between  sysdate"+ vo.getStartDay()+ " AND sysdate"+ vo.getEndDay());
+			}else{
+				sb.append(" AND "+vo.getFieldDate() + " < SYSDATE ");
+			}
+		}
+		if(StringUtils.isNotBlank(vo.getDefaultParams()))
+			sb.append(" AND " +vo.getDefaultParams());
+		getSession().createSQLQuery(sb.toString()).setParameter("upStatus", vo.getStatus()).executeUpdate();
+		return "success";
+	}
+```
+
+```
+/**
+ * 定时任务-根据日期更新某状态字段
+ * <li>用于拼接sql，执行update语句
+ * <li>仅适用于单表 
+ * @author qly
+ */
+public class ConstructUpdateStatusVo {
+	
+	/**
+	 * 表名
+	 */
+	protected String tableName;
+	/**
+	 * 字段名
+	 */
+	protected String fieldName;
+	/**
+	 * 依据的哪个日期
+	 */
+	protected String fieldDate;
+	/**
+	 * 默认SYSDATE
+	 * <li>若只有正常和过期，可不填
+	 * <li>今天开始的30天，则填写+30
+	 */
+	protected String startDay;
+	/**
+	 * 30-60天，则填写-60天
+	 */
+	protected String endDay;
+	/**
+	 * 状态
+	 */
+	protected String status;
+	/**
+	 * 默认查询条件，可不填
+	 * <li>以sql格式填写
+	 */
+	protected String defaultParams;
+	/**
+	 * 是否全表更新，默认否
+	 */
+	protected boolean isUpdateAll=false;
+}	
+```
