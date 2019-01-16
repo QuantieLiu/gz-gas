@@ -5,7 +5,23 @@
 <li>dic配置
 
 ```
+--控制哪些定时任务的数据字典
+code：PROJECT_STATUS_BY_DAY_TIMER
+item-(id-text): 1-PROJECT_STAFF_IDCARDSTATUS  1-PROJECT_MACHINES_STATUS  1-PROJECT_STAFF_BLACK
 
+--以人员的身份证状态说明
+code:PROJECT_STAFF_IDCARDSTATUS
+value:C_CONSTRUCT_STAFF,id_expiry_date,ID_CARD_STATUS,FLG_DELETED=0
+item(priority-id-text-value-remark):
+1   0  正常      0   {isUpdateAll:true}
+2   1  即将过期   1   {endDay:'+60'}
+4   2  过期      2
+
+该数据字典只能由开发人员添加或修改;
+{endDay:'+60',startDay:'+20',isUpdateAll:true}目前仅支持3个参数;
+注意按排序号填写，排序号是执行顺序，允许调号但不允许混乱的顺序;
+值的前三个是必填参数，依次是依据某表的某个字段更新某个字段，
+值的第四个是默认查询参数，可填
 ```
 
 <li>代码
