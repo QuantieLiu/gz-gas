@@ -79,3 +79,61 @@
 		return super.queryPagedResult(sb.toString(),objs.toArray(new Object[]{}));
 	}
 ```
+
+<li>非hql实体查询，需手动处理分页参数
+	
+```
+	public Pagelet queryUserBySearch(String[] code, String searchStr,Pagelet pagelet){
+		//先用sql拼装每个user对应的角色名称
+		StringBuffer sbin = new StringBuffer(" SELECT uin.ID,rin.ROLE_NAME,rin.CODE  FROM sys_user uin ");
+		sbin.append(" JOIN sys_user_role urin on uin.id=urin.user_id ");
+		sbin.append(" JOIN sys_role rin on urin.ROLE_ID=rin.ID ");
+		if(code.length >0){
+			sbin.append("and rin.code in (:codes) ");
+		}
+		//聚合获取角色名称
+		StringBuffer sbout = new StringBuffer(" SELECT tt.id,GROUP_CONCAT(tt.ROLE_NAME SEPARATOR  ',') as role_name, GROUP_CONCAT(tt.`CODE` SEPARATOR ',') AS role_code");
+		sbout.append(" from ( "+ sbin +" )tt GROUP BY tt.id");
+		//查询数据集
+		//distinct(uc.LOGON_ID)避免重复的数据显示到页面
+		StringBuffer sb = new StringBuffer(" SELECT distinct(uc.LOGON_ID),uc.NAME,u.id,u.USER_INFO_ID,uc.FLG_ACTIVE,u.ORG_ID,u.ORG_NAME,tr.role_name,tr.role_code ");
+		sb.append(" FROM sys_user u JOIN sys_user_comminfo uc on uc.ID=u.USER_INFO_ID ");
+		sb.append(" JOIN sys_user_role ur ON ur.user_id=u.id ");
+		sb.append(" JOIN sys_role r ON r.ID=ur.ROLE_ID ");
+		sb.append(" JOIN (" + sbout +")tr ON tr.ID=u.id ");	
+		//正常情况都会有值
+		if(code.length >0){
+			sb.append("and r.code in (:codes) ");
+		}
+		if (StringUtils.isNotBlank(searchStr)) {
+			sb.append("and  (uc.LOGON_ID like (:searchStr) or uc.name like (:searchStr)) ");
+		}
+		sb.append("order by u.CREATE_TIME DESC ");
+		SQLQuery query = this.getSession().createSQLQuery(sb.toString());
+		List<Object> list;
+		//放入查询参数
+		if(code.length >0){
+			query.setParameterList("codes", code);
+		}
+		if (StringUtils.isNotBlank(searchStr)) {
+			query.setParameter("searchStr", "%"+searchStr+"%");
+		}
+		list = query.setFirstResult(pagelet.getPerPageSize()*(pagelet.getPageNo()-1)).setMaxResults(pagelet.getPerPageSize()).list();
+		pagelet.setDatas(list);
+		//手动处理分页参数
+		//查询总数
+		StringBuffer sbCount = new StringBuffer(" SELECT COUNT(*) FROM ( ");
+		sbCount.append(sb.toString() +" )aa ");
+		SQLQuery queryCount = this.getSession().createSQLQuery(sbCount.toString());
+		//放入查询参数
+		if(code.length >0){
+			queryCount.setParameterList("codes", code);
+		}
+		if (StringUtils.isNotBlank(searchStr)) {
+			queryCount.setParameter("searchStr", "%"+searchStr+"%");
+		}
+		List<Object> listCount=queryCount.list();
+		pagelet.setTotalCount(Integer.parseInt(listCount.get(0).toString()));
+		return pagelet;
+	}
+```
