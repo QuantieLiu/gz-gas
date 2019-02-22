@@ -1,3 +1,37 @@
+## 简单介绍
+
+<li>主要用于联合查询
+
+```
+一般来说，in是把外表和内表作hash 连接，而exists 是对外表作loop 循环，
+假设有A、B两个表，使用时是这样的：
+
+1、select * from A where id in (select id from B)--使用in
+
+2、select * from A where exists(select B.id from B where B.id=A.id)--使用exists
+也可以完全不使用in和exists：
+
+3、select A.* from A,B where A.id=B.id--不使用in和exists
+
+具体使用时到底选择哪一个，主要考虑查询效率问题：
+
+第一条语句使用了A表的索引；
+
+第二条语句使用了B表的索引；
+
+第三条语句同时使用了A表、B表的索引；
+
+如果A、B表的数据量不大，那么这三个语句执行效率几乎无差别；
+
+如果A表大，B表小，显然第一条语句效率更高，反之，则第二条语句效率更高；
+
+第三条语句尽管同时使用了A表、B表的索引，单扫描次数是笛卡尔乘积，效率最差。
+```
+
+## 详细例子
+
+###  exists
+
 exists表示()内子查询语句返回结果不为空说明where条件成立就会执行主sql语句，如果为空就表示where条件不成立，sql语句就不会执行。not exists和exists相反，子查询语句结果为空，则表示where条件成立，执行sql语句。负责不执行。
 
 之前在学oracle数据库的时候，接触过exists，做过几个简单的例子,，如
@@ -65,7 +99,7 @@ exists 用法：
 
  
 
-in 的用法：
+### in 
 
 继续引用上面的例子
 
